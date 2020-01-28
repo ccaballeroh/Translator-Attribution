@@ -1,0 +1,117 @@
+\documentclass{article}
+
+\usepackage{booktabs}
+\begin{document}
+
+\begin{table}
+\centering
+% To place a caption above a table
+\caption{Cross-validation accuracy. Ibsen corpus}
+\begin{tabular}{lrrrr}
+\toprule
+{Features} &       SVC &  Naïve Bayes &  Random Forest &  Logistic Regression \\
+\midrule
+bigrams                    &  0.646739 &     0.800000 &       0.884601 &             0.987319 \\
+unigrams                   &  0.846558 &     0.889674 &       0.927717 &             0.982790 \\
+trigrams                   &  0.540399 &     0.800000 &       0.630072 &             0.872283 \\
+unigrams punct             &  0.863587 &     0.948913 &       0.991486 &             1.000000 \\
+trigrams punct             &  0.561594 &     0.889493 &       0.927717 &             0.970290 \\
+bigrams punct              &  0.838043 &     0.957065 &       0.974457 &             1.000000 \\
+trigrams pos               &  0.764855 &     0.562500 &       0.745109 &             0.817391 \\
+bigrams pos                &  0.787319 &     0.617029 &       0.830254 &             0.821558 \\
+trigrams pos punct         &  0.961232 &     0.995833 &       0.983333 &             0.995833 \\
+bigrams pos punct          &  0.974638 &     0.995833 &       0.991667 &             1.000000 \\
+cohesive punctuation       &  0.838043 &     0.872283 &       0.910326 &             0.919203 \\
+cohesive                   &  0.694384 &     0.540761 &       0.748551 &             0.740580 \\
+syntactic n2               &  0.803442 &     0.956703 &       0.982790 &             0.995652 \\
+syntactic n3               &  0.485145 &     0.892935 &       0.965761 &             0.982971 \\
+bigrams tf                 &  0.715036 &     0.800000 &       0.974094 &             0.544565 \\
+bigrams tfidf              &  0.715036 &     0.888949 &       0.974094 &             0.544565 \\
+bigrams pos punct tf       &  0.974638 &     0.995833 &       1.000000 &             0.544565 \\
+bigrams pos punct tfidf    &  0.974638 &     0.995833 &       1.000000 &             0.544565 \\
+bigrams pos tfidf          &  0.804529 &     0.778442 &       0.978442 &             0.544565 \\
+bigrams pos tf             &  0.804529 &     0.786957 &       0.978623 &             0.544565 \\
+bigrams punct tf           &  0.842210 &     0.957065 &       0.982790 &             0.544565 \\
+cohesive tf                &  0.677536 &     0.536594 &       0.952536 &             0.544565 \\
+cohesive punctuation tf    &  0.838043 &     0.872283 &       0.982790 &             0.544565 \\
+bigrams punct tfidf        &  0.842210 &     0.987138 &       0.982790 &             0.544565 \\
+cohesive tfidf             &  0.677536 &     0.549275 &       0.960870 &             0.544565 \\
+cohesive punctuation tfidf &  0.838043 &     0.902536 &       0.986957 &             0.544565 \\
+syntactic n2 tf            &  0.709239 &     0.956703 &       0.995652 &             0.539855 \\
+syntactic n2 tfidf         &  0.709239 &     0.978442 &       0.991304 &             0.539855 \\
+syntactic n3 tf            &  0.485145 &     0.892935 &       0.974457 &             0.539855 \\
+syntactic n3 tfidf         &  0.485145 &     0.957428 &       0.991486 &             0.539855 \\
+trigrams tf                &  0.544565 &     0.800000 &       0.821196 &             0.544565 \\
+trigrams tfidf             &  0.544565 &     0.833696 &       0.846558 &             0.544565 \\
+trigrams pos tfidf         &  0.808333 &     0.698188 &       0.982609 &             0.544565 \\
+trigrams pos tf            &  0.808333 &     0.605072 &       0.982609 &             0.544565 \\
+trigrams pos punct tfidf   &  0.969746 &     0.995833 &       1.000000 &             0.544565 \\
+trigrams pos punct tf      &  0.969746 &     0.995833 &       1.000000 &             0.544565 \\
+trigrams punct tf          &  0.561594 &     0.889493 &       0.940399 &             0.544565 \\
+trigrams punct tfidf       &  0.561594 &     0.970109 &       0.940399 &             0.544565 \\
+unigrams tfidf             &  0.867935 &     0.940399 &       0.991304 &             0.544565 \\
+unigrams tf                &  0.867935 &     0.889674 &       0.982609 &             0.544565 \\
+unigrams punct tf          &  0.893116 &     0.948913 &       0.995652 &             0.544565 \\
+unigrams punct tfidf       &  0.893116 &     0.978804 &       0.991304 &             0.544565 \\
+\bottomrule
+\end{tabular}
+
+\end{table}
+
+\begin{table}
+\centering
+% To place a caption above a table
+\caption{Cross-validation accuracy. Quixote corpus}
+\begin{tabular}{lrrrr}
+\toprule
+{Features} &       SVC &  Naïve Bayes &  Random Forest &  Logistic Regression \\
+\midrule
+unigrams                   &  0.960384 &     0.807183 &       1.000000 &             0.989474 \\
+bigrams                    &  0.629587 &     0.396728 &       0.984211 &             0.984211 \\
+trigrams                   &  0.124253 &     0.050142 &       0.925818 &             0.889047 \\
+unigrams punct             &  0.960384 &     0.812589 &       1.000000 &             0.986700 \\
+bigrams punct              &  0.812091 &     0.640114 &       0.989474 &             0.986771 \\
+trigrams punct             &  0.471266 &     0.526885 &       0.986771 &             0.976316 \\
+bigrams pos                &  0.828094 &     0.443883 &       0.610953 &             0.859602 \\
+trigrams pos               &  0.841323 &     0.436913 &       0.666074 &             0.867639 \\
+bigrams pos punct          &  0.986771 &     0.867994 &       0.984139 &             0.992034 \\
+trigrams pos punct         &  0.994737 &     0.947297 &       0.978876 &             0.994737 \\
+cohesive                   &  0.862233 &     0.748791 &       0.930939 &             0.923257 \\
+cohesive punctuation       &  0.965789 &     0.867923 &       0.968208 &             0.978805 \\
+syntactic n2               &  0.674680 &     0.449573 &       0.989474 &             0.973613 \\
+syntactic n3               &  0.216856 &     0.126885 &       0.944666 &             0.920697 \\
+bigrams tf                 &  0.632290 &     0.396728 &       0.973542 &             0.269915 \\
+bigrams tfidf              &  0.632290 &     0.844097 &       0.981508 &             0.269915 \\
+bigrams pos tf             &  0.820199 &     0.438478 &       0.729872 &             0.269915 \\
+bigrams pos tfidf          &  0.820199 &     0.433215 &       0.724680 &             0.269915 \\
+bigrams pos punct tfidf    &  0.986771 &     0.867994 &       0.978876 &             0.269915 \\
+bigrams pos punct tf       &  0.986771 &     0.867994 &       0.978876 &             0.269915 \\
+bigrams punct tf           &  0.812091 &     0.640114 &       0.997297 &             0.269915 \\
+cohesive punctuation tf    &  0.963158 &     0.867923 &       0.994737 &             0.269915 \\
+cohesive tfidf             &  0.870128 &     0.748791 &       0.984211 &             0.269915 \\
+bigrams punct tfidf        &  0.812091 &     0.939331 &       0.992105 &             0.269915 \\
+cohesive punctuation tfidf &  0.963158 &     0.902276 &       0.986771 &             0.269915 \\
+cohesive tf                &  0.870128 &     0.748791 &       0.978805 &             0.269915 \\
+syntactic n2 tf            &  0.666785 &     0.449573 &       0.978947 &             0.269915 \\
+syntactic n2 tfidf         &  0.666785 &     0.894310 &       0.981579 &             0.269915 \\
+syntactic n3 tf            &  0.211451 &     0.126885 &       0.934068 &             0.269915 \\
+syntactic n3 tfidf         &  0.211451 &     0.648080 &       0.939331 &             0.269915 \\
+trigrams tf                &  0.126956 &     0.050142 &       0.920555 &             0.269915 \\
+trigrams tfidf             &  0.126956 &     0.388905 &       0.936629 &             0.269915 \\
+trigrams pos tf            &  0.849218 &     0.439545 &       0.785206 &             0.269915 \\
+trigrams pos tfidf         &  0.849218 &     0.511095 &       0.764438 &             0.269915 \\
+trigrams pos punct tf      &  0.994737 &     0.947297 &       0.981508 &             0.269915 \\
+trigrams pos punct tfidf   &  0.994737 &     0.973613 &       0.965718 &             0.269915 \\
+trigrams punct tf          &  0.476529 &     0.526885 &       0.986771 &             0.269915 \\
+trigrams punct tfidf       &  0.476529 &     0.899502 &       0.981508 &             0.269915 \\
+unigrams tf                &  0.960384 &     0.807183 &       0.992105 &             0.269915 \\
+unigrams tfidf             &  0.960384 &     0.920768 &       0.992105 &             0.269915 \\
+unigrams punct tf          &  0.960384 &     0.812589 &       0.997368 &             0.269915 \\
+unigrams punct tfidf       &  0.960384 &     0.920768 &       0.992105 &             0.269915 \\
+\bottomrule
+\end{tabular}
+
+\end{table}
+
+
+\end{document}
