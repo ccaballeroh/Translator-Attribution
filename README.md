@@ -7,6 +7,7 @@ there are parallel works translated by two people, whereas the Cervantes corpus 
 in the `Corpora` both in raw format and preprocessed.
 
 The file structure in the computer is as follows:
+
   \auxfiles
   \Corpora
   \helper
