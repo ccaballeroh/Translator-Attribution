@@ -1,12 +1,14 @@
 from collections import defaultdict
+from pathlib import Path
 import json
 import copy
 from math import log10
 
+OUTPUT_FOLDER = Path(r"./auxfiles/json/")
 
 def save_dataset_to_json(featureset,
                          jsonfilename,
-                         outputfolder=".\\auxfiles\\json\\"):
+                         outputfolder=OUTPUT_FOLDER):
     """Writes to json file featureset.
 
     The feature set comprises a list of lists. Each list contains
@@ -15,32 +17,30 @@ def save_dataset_to_json(featureset,
 
     :featureset    'List'   - [[{'feature':value},'translator'], ...]
     :jsonfilename  'String' - Filename without .json extension
-    :outputfolder  'String' - path to save file. Current by default
+    :outputfolder  'Path'   - path to save file
 
     Returns None.
     """
     json_str = json.dumps(featureset)
-    with open(outputfolder + jsonfilename + ".json", "w") as f:
+    with open(outputfolder/(jsonfilename+".json"), "w") as f:
         f.write(json_str)
     print("file saved")
     return None
 
 
-def get_dataset_from_json(jsonfilename,
-                          folder=".\\auxfiles\\json\\"):
+def get_dataset_from_json(jsonfilename):
     """Loads dataset from json file.
 
     For each document, the json file contains dictionary
     with featurename -> value and string with translator's
     name.
 
-    :jsonfilename  'String'  - name of file to load
-    :folder        'String'  - relative path to folder where json is
-
+    :jsonfilename  'Path' - name of file to load with full path
+    
     Returns a tuple of lists.
     First is list of dictionary of features.
     Second is list of strings with translators names"""
-    with open(folder + jsonfilename, "r") as f:
+    with open(jsonfilename, "r") as f:
         dataset = json.loads(f.read())
     X_dict = [features for features, _ in dataset]
     y_str  = [translator for _, translator in dataset]
@@ -59,29 +59,19 @@ def get_translator(filename):
     return filename.split("_")[0]
 
 
-def proc_texts(folder, filename, nlp, debug=False):
+def proc_texts(filename, nlp):
     """Process a raw file with a spaCy pipeline.
 
     The function takes the folder name, filename and nlp object
 
-    :folder    'String'     - relative path to folder with corpus
-    :filename  'String'     - name of the file to process
+    :filename  'Path'       - name of the file to process
     :nlp       'spaCy pipe' - spaCy pipeline with at leat a tokenizer
 
     Returns a spacy Document object.
     """
-    with open(folder + filename, "r",
-              encoding="UTF-8",
-             ) as f:
+    with open(filename, "r", encoding="UTF-8") as f:
         raw = f.read()
     doc = nlp(raw)
-    if debug:
-        import datetime as dt
-        t = dt.datetime.now()
-        with open(
-            ".\\auxfiles\\logs\\log_{}.txt".format(
-                t.strftime("%Y%m%d_%H%M")), "a") as f:
-            print(filename, file=f)
     return doc
 
 
