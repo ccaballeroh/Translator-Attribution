@@ -1,7 +1,7 @@
 # TranslatorAttribution
 Repository for holding all the files necessary of my master's project
 
-For my thesis project, I want to make translator attribution using linguitics-inspired features.
+For my thesis project, I want to attribute the translator of a text to its translator using linguitics-inspired features.
 The corpora comprises works by Norwegian playwright, Henrik Ibsen, and Spanish writer, Miguel de Cervantes. For the Ibsen corpus,
 there are parallel works translated by two people, whereas the Cervantes corpus is composed of three translations. All the texts are
 in the `Corpora` both in raw format and preprocessed.
