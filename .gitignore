@@ -1,4 +1,8 @@
 .ipynb_checkpoints
+.mypy_cache
+.vscode
+Corpora/Proc_*
+helper/__pycache__/*
 Trash
 auxfiles
 Network\ motifs\ paper
