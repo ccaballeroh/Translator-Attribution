@@ -2,8 +2,12 @@
 .mypy_cache
 .vscode
 Corpora/Proc_*
-helper/__pycache__/*
+__pycache__
 Trash
-auxfiles
+auxfiles/json/features*.json
+auxfiles/logs
+auxfiles/pickle
+auxfiles/svg
+auxfiles/txt
 Network\ motifs\ paper
 *.pyc
