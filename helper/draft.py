@@ -1,9 +1,14 @@
 import spacy
 from collections import defaultdict
 from spacy.tokens import Span
+from spacy.lang.en import English
 from pathlib import Path
+import json
 from typing import Dict, DefaultDict
 import re
+
+
+JSON_FOLDER = Path(r"./auxfiles/json/")
 
 
 class MyDoc(object):
@@ -66,6 +71,29 @@ class MyDoc(object):
                 features[trigram] += 1
         return dict(features)
 
+    def cohesive(self, matcher, punct=False):
+        """Returns cohesive markers values from a spaCy doc.
+
+        The function takes as inputs a processed document,
+        a matcher object and a flag to take into account the punctuation
+        surrounding the marker.
+
+        :doc      'doc'           - spaCy doc object of the document
+        :matcher  'PhraseMatcher' - spaCy matcher with the markers to match
+        :extended 'Boolean'       - Flag to take into account punctuation
+
+        Returns a dictionary with markers as keys and counts as values.
+        """
+        doc = self.doc
+        features = defaultdict(int)
+        matches = matcher(doc)
+        spans = [Span(doc, start, end) for match_id, start, end in matches]
+        if punct:
+            spans = self._extended_spans(spans)
+        for string in (span.text.lower() for span in spans):
+            features[string] += 1
+        return dict(features)
+
     def _ngrams_tokens(self, n=1, punct=False):
         """Returns n-grams of tokens.
         The function takes a spaCy doc object, a value for n, and
@@ -101,33 +129,53 @@ class MyDoc(object):
             pos = [token.pos_ for token in doc if token.pos_ != "PUNCT"]
         return (pos[i : i + n] for i in range(len(pos) + 1 - n))
 
+    def _extended_spans(self, spans):
+        """Returns Spans with surrounding punctuation.
 
-def main():
-    print("main...")
-    nlp = spacy.load("en_core_web_sm")
-    CORPUS_FOLDER = Path(r"D:/Google Drive/00Tesis/Corpora/Proc_Ibsen_final/")
+        The function takes a list of Span spaCy objects, and
+        a document pipelined with spaCy.
 
-    print("procesand...")
-    return [
-        MyDoc(file, nlp) for file in CORPUS_FOLDER.iterdir() if file.suffix == ".txt"
-    ]
+        :spans 'List' - List with Span objects where to look for
+                        surrounding punctuation
+        :doc   'doc'  - spaCy doc object where to look for punctuation
+
+        Returns a list of extended Spans if the Span was surrounded by punctuation.
+        """
+        doc = self.doc
+        extended_spans = []
+        for span in spans:
+            start, end = span.start, span.end
+            previous_token = doc[start - 1]
+            following_token = (
+                doc[end] if end < len(doc) else doc[end - 1]
+            )  # Atención c/ el índice
+            if previous_token.is_punct:
+                start = start - 1 if (start - 1) > 1 else start
+            if following_token.is_punct:
+                end = end + 1
+            extended_spans.append(Span(doc, start, end))
+        return extended_spans
 
 
-def main_ngrams(n, docs, punct=False):
-    print(f"features...{n}")
-    return [(my_doc.n_grams(n, punct=punct), my_doc.translator) for my_doc in docs]
+def marker_matcher(nlp, markersfile, FOLDER=JSON_FOLDER):
+    """Returns a spaCy's PhraseMatcher object.
 
+    The function takes a nlp pipe, a filename to read from the words
+    to match, and optionally the folder where to find the file.
 
-def main_ngramsPOS(n, docs, punct=False):
-    print(f"features...{n}")
-    return [(my_doc.n_gramsPOS(n, punct=punct), my_doc.translator) for my_doc in docs]
+    :nlp          'spaCy pipe object' - spaCy pipe with at leat a tokenizer
+    :markersfile  'Str'               - String with filename to read from.
 
+    Returns a PhraseMatcher object.
+    """
+    from spacy.matcher import PhraseMatcher
+
+    with open(FOLDER / markersfile, "r") as f:
+        MARKERS = json.loads(f.read())
+    markers_pattern = list(nlp.pipe(MARKERS))
+    matcher = PhraseMatcher(nlp.vocab, attr="LOWER")
+    matcher.add("MARKERS", markers_pattern)
+    return matcher
 
 if __name__ == "__main__":
-    docs = main()
-    example_punct = [main_ngrams(n + 1, docs, punct=True) for n in range(3)]
-    example_no_punct = [main_ngrams(n + 1, docs, punct=False) for n in range(3)]
-    example_punctPOS = [main_ngramsPOS(n + 1, docs, punct=True) for n in range(1, 3)]
-    example_no_punctPOS = [
-        main_ngramsPOS(n + 1, docs, punct=False) for n in range(1, 3)
-    ]
+    pass
