@@ -6,8 +6,9 @@ __pycache__
 Trash
 auxfiles/json/features*.json
 auxfiles/logs
-auxfiles/pickle
+auxfiles/pickle/*.pickle
 auxfiles/svg
-auxfiles/txt
+auxfiles/txt/Quixote/*.txt
+auxfiles/txt/Ibsen/*.txt
 Network\ motifs\ paper
 *.pyc
