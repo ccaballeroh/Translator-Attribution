@@ -40,7 +40,7 @@ def get_root(sentence):
     return root_node
 
 
-def output_Standford(sentence, file):
+def output_Stanford(sentence, file):
     root = get_root(sentence)
     for token in sentence:
         if token == root:
@@ -76,23 +76,24 @@ def output_Standford(sentence, file):
     return None
 
 
-def run():
-    TXT_FOLDER = Path(r"./auxfiles/txt/Ibsen/")
-    import spacy
-
-    nlp = spacy.load("en_core_web_md")
-    pickle = Path(r"./auxfiles/pickle/ibsen_proc.pickle")
-    with open(pickle, "rb") as f:
-        doc_data = f.read()
-    docs = pickle.loads(doc_data)
-    for doc in docs:
-        with open(
-            TXT_FOLDER / (doc.file.stem / "_parsed.txt"), mode="w", encoding="UTF-8"
-        ) as file:
-            for sentence in doc.sents:
-                output_Standford(sentence, file)
-                print("", file=file)
+def _run():
+    for translator in ["Quixote", "Ibsen"]:
+        TXT_FOLDER = Path(fr"./auxfiles/txt/{translator}/")
+        PICKLE = Path(fr"./auxfiles/pickle/{translator}.pickle")
+        with open(PICKLE, "rb") as f:
+            doc_data = f.read()
+        docs = pickle.loads(doc_data)
+        for my_doc in docs:
+            doc = my_doc.doc
+            with open(
+                TXT_FOLDER / (my_doc.file.stem + "_parsed.txt"),
+                mode="w",
+                encoding="UTF-8",
+            ) as file:
+                for sentence in doc.sents:
+                    output_Stanford(sentence, file)
+                    print("", file=file)
 
 
 if __name__ == "__main__":
-    run()
+    _run()
