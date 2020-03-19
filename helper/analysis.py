@@ -9,7 +9,6 @@ import re
 
 __all__ = [
     "MyDoc",
-    "extract_syntactic_ngrams",
     "save_dataset_to_json",
     "get_dataset_from_json",
 ]
