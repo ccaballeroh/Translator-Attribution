@@ -196,35 +196,6 @@ class MyDoc(object):
         return matcher
 
 
-def extract_syntactic_ngrams(folder, filename, n=2):
-    """Returns syntactic ngrams values from text file with analysis.
-    
-    The function takes as inputs the folder name, and file name, along
-    with value of n.
-    
-    :folder    'String'    - name of folder
-    :filename  'String'    - name of text file
-    :n         'Integer'   - value of n for syntactic n-grams
-    
-    Returns a dictionary with syntactic n-grams as keys and counts as values.
-    """
-    sn_pattern = r"(\w+\[.+\])\s+(\d)"
-    features = defaultdict(int)
-    with open(folder + filename, "r") as f:
-        n_ = 0
-        for line in f:
-            if line.startswith("*"):
-                n_ = int(line.split()[-1])
-            elif (line[0].isalpha()) and (n == n_):
-                matchObj = re.match(sn_pattern, line)
-                if matchObj:
-                    sn_gram = matchObj.group(1)
-                    features[sn_gram] += 1
-            else:
-                pass
-    return dict(features)
-
-
 def save_dataset_to_json(featureset, jsonfilename, outputfolder=OUTPUT_FOLDER):
     """Writes to json file featureset.
 
