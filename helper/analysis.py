@@ -20,10 +20,13 @@ MFILE = Path(r"markersList.json")
 
 
 class MyDoc(object):
-    def __init__(self, filename: Path, nlp):
+    def __init__(
+        self, filename: Path, nlp, markersfile: Path = MFILE, folder: Path = JSON_FOLDER
+    ):
         self.__file = filename
         self.nlp = nlp
         self.text = filename.read_text()
+        self.matcher = self._marker_matcher(markersfile, folder)
         self.__doc = self.nlp(self.text)
         self.__translator = filename.name.split("_")[0]
 
@@ -94,14 +97,12 @@ class MyDoc(object):
         a matcher object and a flag to take into account the punctuation
         surrounding the marker.
 
-        :doc      'doc'           - spaCy doc object of the document
-        :matcher  'PhraseMatcher' - spaCy matcher with the markers to match
         :extended 'Boolean'       - Flag to take into account punctuation
 
         Returns a dictionary with markers as keys and counts as values.
         """
         doc = self.doc
-        matcher = self._marker_matcher()
+        matcher = self.matcher
         features = defaultdict(int)
         matches = matcher(doc)
         spans = [Span(doc, start, end) for match_id, start, end in matches]
@@ -173,7 +174,7 @@ class MyDoc(object):
             extended_spans.append(Span(doc, start, end))
         return extended_spans
 
-    def _marker_matcher(self, markersfile: Path = MFILE, folder: Path = JSON_FOLDER):
+    def _marker_matcher(self, markersfile: Path, folder: Path):
         """Returns a spaCy's PhraseMatcher object.
 
         The function takes a nlp pipe, a filename to read from the words
@@ -237,8 +238,12 @@ def get_dataset_from_json(jsonfilename):
 def _example():
     # nlp = English()
     nlp = spacy.load("en_core_web_sm")
-    filename = Path.cwd() / "Corpora" / "Proc_Quixote" / "Jarvis_p1_ch1_proc.txt"
+    filename: Path = Path.cwd() / "Corpora" / "Proc_Quixote" / "Jarvis_p1_ch1_proc.txt"
+    if not filename.is_file():
+        print("Preprocessing Quixote texts...")
+        from helper.preprocessing import quixote
 
+        quixote()
     return MyDoc(filename, nlp)
 
 
