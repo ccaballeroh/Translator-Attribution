@@ -19,5 +19,3 @@ The file structure in the computer is as follows:
   
   Files from the `auxfiles`, `Network motifs paper`, `pan17-author-clustering-training-dataset-2017-02-15`, and `Trash` folders are not
   under version control due to their size. However, all the code necessary is along with the text files used.
-
-  This edition is for testing branching
