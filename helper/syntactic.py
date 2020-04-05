@@ -1,9 +1,12 @@
 from collections import defaultdict
 from typing import Dict, DefaultDict
 from pathlib import Path
+import subprocess
 import re
 import spacy
 import pickle
+
+FOLDER = Path(r"./auxfiles/txt/")
 
 
 def syntactic_ngrams(filename: Path, n: int = 2) -> Dict[str, int]:
@@ -33,11 +36,28 @@ def syntactic_ngrams(filename: Path, n: int = 2) -> Dict[str, int]:
     return dict(features)
 
 
+def syntactic_features(author, n=2):
+    TXT_FOLDER = FOLDER / author
+    sn_files = [
+        filename
+        for filename in TXT_FOLDER.iterdir()
+        if str(filename.stem).endswith("sn")
+    ]
+    return [
+        (syntactic_ngrams(filename, n=2), get_translator(filename))
+        for filename in sn_files
+    ]
+
+
 def get_root(sentence):
     for token in sentence:
         if token.dep_ == "ROOT":
             root_node = token
     return root_node
+
+
+def get_translator(filename):
+    return filename.name.split("_")[0]
 
 
 def output_Stanford(sentence, file):
@@ -76,24 +96,41 @@ def output_Stanford(sentence, file):
     return None
 
 
-def _run():
-    for translator in ["Quixote", "Ibsen"]:
-        TXT_FOLDER = Path(fr"./auxfiles/txt/{translator}/")
-        PICKLE = Path(fr"./auxfiles/pickle/{translator}.pickle")
-        with open(PICKLE, "rb") as f:
-            doc_data = f.read()
-        docs = pickle.loads(doc_data)
-        for my_doc in docs:
-            doc = my_doc.doc
-            with open(
-                TXT_FOLDER / (my_doc.file.stem + "_parsed.txt"),
-                mode="w",
-                encoding="UTF-8",
-            ) as file:
-                for sentence in doc.sents:
-                    output_Stanford(sentence, file)
-                    print("", file=file)
+def sn_generation(author):
+    TXT_FOLDER = FOLDER / author
+    for filename in [f.name for f in TXT_FOLDER.iterdir()]:
+        command = subprocess.Popen(
+            [
+                "python",
+                "./helper/sn_grams3.py",
+                "./auxfiles/txt/%s/%s" % (author, filename),
+                "./auxfiles/txt/%s/%ssn.txt" % (author, filename[:-10]),
+                "2",
+                "3",
+                "5",
+                "0",
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+        )
+        stdout, stderr = command.communicate()
+
+
+def main(author):
+    TXT_FOLDER = FOLDER / author
+    PICKLE = Path(fr"./auxfiles/pickle/{author}.pickle")
+    with open(PICKLE, "rb") as f:
+        doc_data = f.read()
+    docs = pickle.loads(doc_data)
+    for my_doc in docs:
+        doc = my_doc.doc
+        with open(
+            TXT_FOLDER / (my_doc.file.stem + "_parsed.txt"), mode="w", encoding="UTF-8",
+        ) as file:
+            for sentence in doc.sents:
+                output_Stanford(sentence, file)
+                print("", file=file)
 
 
 if __name__ == "__main__":
-    _run()
+    pass
