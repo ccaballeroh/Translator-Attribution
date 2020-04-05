@@ -1,8 +1,10 @@
-- Características más importantes (de regresión logística)
-- Evaluar por qué no clasifica los que clasifica
-- Combinar características
+- Caracterï¿½sticas mï¿½s importantes (de regresiï¿½n logï¿½stica)
+- Evaluar por quï¿½ no clasifica los que clasifica
+- Combinar caracterï¿½sticas
 - Quitar tf-idf de la tabla (ponerla aparte)
 -Agregar los resultados con los que me comparo
+
+-Hacer una funciÃ³n para limpiar archivos que se generan cuando se corre todo
 
 - Meter FUTE antes del 18 de marzo (Ricardo Menchaca, Gelbukh)
 - Preparar protocolo
