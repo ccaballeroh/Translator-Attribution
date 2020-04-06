@@ -6,6 +6,7 @@ from pathlib import Path
 import json
 from typing import Dict, DefaultDict
 import re
+import subprocess
 
 __all__ = [
     "MyDoc",
@@ -13,13 +14,12 @@ __all__ = [
     "get_dataset_from_json",
 ]
 
-
+TXT_FOLDER = Path(r"./auxfiles/txt/")
 JSON_FOLDER = Path(r"./auxfiles/json/")
-OUTPUT_FOLDER = Path(r"./auxfiles/json/")
 MFILE = Path(r"markersList.json")
 
 
-class MyDoc(object):
+class MyDoc:
     def __init__(
         self, filename: Path, nlp, markersfile: Path = MFILE, folder: Path = JSON_FOLDER
     ):
@@ -45,6 +45,10 @@ class MyDoc(object):
     @property
     def translator(self) -> str:
         return self.__translator
+
+    @property
+    def author(self) -> str:
+        return self.file.parts[-2].split("_")[1]
 
     def __repr__(self):
         return str(self.doc)
@@ -110,6 +114,82 @@ class MyDoc(object):
             spans = self._extended_spans(spans)
         for string in (span.text.lower() for span in spans):
             features[string] += 1
+        return dict(features)
+
+    def n_grams_syntactic(self, *, n: int = 2) -> Dict[str, int]:
+        assert n in {2, 3}, "Only for values of n in {2, 3}"
+        author = self.author
+        FOLDER = TXT_FOLDER / author
+        sn_file = self.file.stem + "_sn" + self.file.suffix
+        filename = FOLDER / sn_file
+        if not filename.is_file():
+            print("Generating parsed and sn...")
+            self._generate_parsed()  # with stanford format
+            self._sn_generation()
+        return self._syntactic_features(n=n)
+
+    def _generate_parsed(self):
+        author = self.author
+        FOLDER = TXT_FOLDER / author
+        doc = self.doc
+        with open(
+            FOLDER / (self.file.stem + "_parsed.txt"), mode="w", encoding="UTF-8",
+        ) as file:
+            for sentence in doc.sents:
+                output_Stanford(sentence, file)
+                print("", file=file)
+
+    def _sn_generation(self):
+        author = self.author
+        FOLDER = TXT_FOLDER / author
+        filename = self.file.stem + "_parsed.txt"
+        assert (FOLDER / filename).is_file(), "Parsed file not found"
+        command = subprocess.Popen(
+            [
+                "python",
+                "./helper/sn_grams3.py",
+                "./auxfiles/txt/%s/%s" % (author, filename),
+                "./auxfiles/txt/%s/%ssn.txt" % (author, filename[:-10]),
+                "2",
+                "3",
+                "5",
+                "0",
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+        )
+        stdout, stderr = command.communicate()
+        (FOLDER / filename).unlink()
+        print(f"Deleted {FOLDER / filename}")
+
+    def _syntactic_features(self, *, n: int = 2) -> Dict[str, int]:
+        """Returns syntactic ngrams values from text file with analysis.
+        
+        The function takes as inputs the file name, along with the value of n.
+        
+        :filename  'Path'    - name of text file
+        :n         'Integer'   - value of n for syntactic n-grams
+        
+        Returns a dictionary with syntactic n-grams as keys and counts as values.
+        """
+        author = self.author
+        FOLDER = TXT_FOLDER / author
+        sn_file = self.file.stem + "_sn" + self.file.suffix
+        filename = FOLDER / sn_file
+        sn_pattern = r"(\w+\[.+\])\s+(\d)"
+        features: DefaultDict[str, int] = defaultdict(int)
+        with filename.open("r") as f:
+            n_ = 0
+            for line in f:
+                if line.startswith("*"):
+                    n_ = int(line.split()[-1])
+                elif (line[0].isalpha()) and (n == n_):
+                    matchObj = re.match(sn_pattern, line)
+                    if matchObj:
+                        sn_gram = matchObj.group(1)
+                        features[sn_gram] += 1
+                else:
+                    pass
         return dict(features)
 
     def _ngrams_tokens(self, n=1, punct=False):
@@ -196,7 +276,7 @@ class MyDoc(object):
         return matcher
 
 
-def save_dataset_to_json(featureset, jsonfilename, outputfolder=OUTPUT_FOLDER):
+def save_dataset_to_json(featureset, jsonfilename, outputfolder=JSON_FOLDER):
     """Writes to json file featureset.
 
     The feature set comprises a list of lists. Each list contains
@@ -233,6 +313,49 @@ def get_dataset_from_json(jsonfilename):
     X_dict = [features for features, _ in dataset]
     y_str = [translator for _, translator in dataset]
     return X_dict, y_str
+
+
+def get_root(sentence):
+    for token in sentence:
+        if token.dep_ == "ROOT":
+            root_node = token
+    return root_node
+
+
+def output_Stanford(sentence, file):
+    root = get_root(sentence)
+    for token in sentence:
+        if token == root:
+            print(
+                "root",
+                "(",
+                "ROOT",
+                "-",
+                0,
+                ", ",
+                token.text,
+                "-",
+                token.i + 1,
+                ")",
+                sep="",
+                file=file,
+            )
+        else:
+            print(
+                token.dep_,
+                "(",
+                token.head,
+                "-",
+                token.head.i + 1,
+                ", ",
+                token.text,
+                "-",
+                token.i + 1,
+                ")",
+                sep="",
+                file=file,
+            )
+    return None
 
 
 def _example():
@@ -295,7 +418,7 @@ if __name__ == "__main__":
     input("...")
     print(
         f"""
-    And save the result to disk save_dataset_to_json([(d1,doc.translator], "trash")
+    And save the result to disk save_dataset_to_json([(d1,doc.translator)], "trash")
     """
     )
     save_dataset_to_json([(d1, doc.translator)], "trash")
