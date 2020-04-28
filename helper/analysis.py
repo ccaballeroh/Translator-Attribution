@@ -1,12 +1,27 @@
-import spacy
+"""This module contains the class definition of `MyDoc` and two functions useful
+for saving and retrieving feature sets to and from disk.
+
+The feature sets are a bag-of-words model of any combination of:
+    - word n-grams with n in {1, 2, 3} with or without punctuation
+    - POS n-grams with n in {2, 3} with or without punctuation
+    - syntactic n-grams with n in {2, 3}
+    - cohesive markers with or without punctuation
+
+They are returned as a dictionary of {feature : counts, ...} easily serialized to a
+json file when stored in lists.
+"""
+
 from collections import defaultdict
-from spacy.tokens import Span
-from spacy.lang.en import English
 from pathlib import Path
-import json
+from spacy.lang.en import English
+from spacy.matcher import PhraseMatcher
+from spacy.tokens import Span
 from typing import Dict, DefaultDict
+import json
 import re
+import spacy
 import subprocess
+
 
 __all__ = [
     "MyDoc",
@@ -20,9 +35,62 @@ MFILE = Path(r"markersList.json")
 
 
 class MyDoc:
+    """
+    MyDoc class represents a document text processed by a spaCy language model. It has methods
+    for returning feature sets.
+    
+    The feature sets are a bag-of-words model of any combination of:
+    - word n-grams with n in {1, 2, 3} with or without punctuation
+    - POS n-grams with n in {2, 3} with or without punctuation
+    - syntactic n-grams with n in {2, 3}
+    - cohesive markers with or without punctuation
+
+    Attributes:
+    - author: str 
+        author of the text file
+    - doc: spacy.tokens.doc.Doc 
+        processed spaCy doc
+    - file: Path 
+        Path object of processed file
+    - filename: str 
+        file name 
+    - matcher: PhraseMatcher 
+        spaCy PhraseMatcher for finding cohesive markers
+    - nlp: English 
+        spaCy English language model
+    - text: str 
+        plain text representation of the processed text file
+    - translator: str 
+        translator of the text file
+
+    Methods:
+    - n_grams(*, n: int, punct: bool) -> Dict[str, int] 
+        n in {1, 2, 3}, returns a dictionary of n-grams and their counts.
+        Can include punctuation if `punct` is True.
+    - n_gramsPOS(*, n: int, punct: bool) -> Dict[str, int] 
+        n in {2, 3}, returns a dictionary of POS n-grams and their counts.
+        Can include punctuation if `punct` is True.
+    - n_grams_syntactic(*, n: int) -> Dict[str, int] 
+        n in {2, 3}, returns a dictionary of syntactic n-grams and their counts.
+    - cohesive(*, punct: bool) -> Dict[str, int]
+        returns a dictionary of cohesive markers.
+        Can include punctuation if `punct` is True.
+    """
+
     def __init__(
-        self, filename: Path, nlp, markersfile: Path = MFILE, folder: Path = JSON_FOLDER
+        self,
+        filename: Path,
+        nlp: English,
+        markersfile: Path = MFILE,
+        folder: Path = JSON_FOLDER,
     ):
+        """
+        Parameters:
+        filename: Path - Path object to file to read
+        nlp: English - spaCy language model to process file
+        markersfile: Path - Path object to file with cohesive markers
+        folder: Path - Path to directory where JSON file with markers is
+        """
         self.__file = filename
         self.nlp = nlp
         self.text = filename.read_text()
@@ -32,29 +100,48 @@ class MyDoc:
 
     @property
     def file(self) -> Path:
+        """Returns Path object to text file."""
         return self.__file
 
     @property
     def filename(self) -> str:
+        """Returns name of the text file."""
         return self.__file.name
 
     @property
-    def doc(self):
+    def doc(self) -> spacy.tokens.doc.Doc:
+        """Returns spaCy doc object of the text file."""
         return self.__doc
 
     @property
     def translator(self) -> str:
+        """Returns translator of text file."""
         return self.__translator
 
     @property
     def author(self) -> str:
+        """Returns author of text file."""
         return self.file.parts[-2].split("_")[1]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
+        """Returns representation."""
         return str(self.doc)
 
-    def n_grams(self, n: int, punct: bool = False) -> Dict[str, int]:
-        doc = self.doc
+    def n_grams(self, *, n: int, punct: bool = False) -> Dict[str, int]:
+        """Returns bag-of-words model of n-grams with and without punctuation.
+
+        n can only take values in {1, 2, 3}. The n-grams can include or omit the
+        punctuation marks depending on the value of the parameter punct. Both
+        parameters are keyword-only.
+
+        Parameters:
+        n: int - value of n in n-grams
+        punct: bool - flag to consider or not punctuation
+
+        Returns:
+        A dictionary of n-gram and its count
+        """
+        assert n in {1, 2, 3}, f"Only for values of n in {{1, 2, 3}}, n={n} given."
         features: DefaultDict[str, int] = defaultdict(int)
         ngrams = self._ngrams_tokens(n=n, punct=punct)
         if n == 1:
@@ -79,7 +166,8 @@ class MyDoc:
                 features[trigram] += 1
         return dict(features)
 
-    def n_gramsPOS(self, n: int, punct: bool = False) -> Dict[str, int]:
+    def n_gramsPOS(self, *, n: int, punct: bool = False) -> Dict[str, int]:
+        assert n in {2, 3}, f"Only for values of n in {{2, 3}}, n={n} given."
         features: DefaultDict[str, int] = defaultdict(int)
         ngrams = self._ngrams_pos(n=n, punct=punct)
         if n == 2:
@@ -94,7 +182,7 @@ class MyDoc:
                 features[trigram] += 1
         return dict(features)
 
-    def cohesive(self, punct=False):
+    def cohesive(self, *, punct: bool = False) -> Dict[str, int]:
         """Returns cohesive markers values from a spaCy doc.
 
         The function takes as inputs a processed document,
@@ -107,7 +195,7 @@ class MyDoc:
         """
         doc = self.doc
         matcher = self.matcher
-        features = defaultdict(int)
+        features: DefaultDict[str, int] = defaultdict(int)
         matches = matcher(doc)
         spans = [Span(doc, start, end) for match_id, start, end in matches]
         if punct:
@@ -117,7 +205,7 @@ class MyDoc:
         return dict(features)
 
     def n_grams_syntactic(self, *, n: int = 2) -> Dict[str, int]:
-        assert n in {2, 3}, "Only for values of n in {2, 3}"
+        assert n in {2, 3}, f"Only for values of n in {{2, 3}}, n={n} given."
         author = self.author
         FOLDER = TXT_FOLDER / author
         sn_file = self.file.stem + "_sn" + self.file.suffix
@@ -254,7 +342,7 @@ class MyDoc:
             extended_spans.append(Span(doc, start, end))
         return extended_spans
 
-    def _marker_matcher(self, markersfile: Path, folder: Path):
+    def _marker_matcher(self, markersfile: Path, folder: Path) -> PhraseMatcher:
         """Returns a spaCy's PhraseMatcher object.
 
         The function takes a nlp pipe, a filename to read from the words
@@ -265,8 +353,6 @@ class MyDoc:
 
         Returns a PhraseMatcher object.
         """
-        from spacy.matcher import PhraseMatcher
-
         nlp = self.nlp
         with open(folder / markersfile, "r") as f:
             MARKERS = json.loads(f.read())
@@ -358,11 +444,11 @@ def output_Stanford(sentence, file):
     return None
 
 
-def _example():
+def _example() -> MyDoc:
     # nlp = English()
     nlp = spacy.load("en_core_web_sm")
     filename: Path = Path.cwd() / "Corpora" / "Proc_Quixote" / "Jarvis_p1_ch1_proc.txt"
-    if not filename.is_file():
+    if not filename.exists():
         print("Preprocessing Quixote texts...")
         from helper.preprocessing import quixote
 
@@ -388,14 +474,17 @@ if __name__ == "__main__":
     {doc.file} of type {type(doc.file)}
     """
     )
-    d1, d2 = doc.n_grams(n=3, punct=True), doc.n_gramsPOS(n=3, punct=False)
     input("...")
     print(
         f"""
     We can now extract the features. For example, we can extract trigrams with
-    punctuation along with POS trigrams without punctuation...
+    punctuation along with POS trigrams without punctuation:
+    
+    d1, d2 = doc.n_grams(n=3, punct=True), doc.n_gramsPOS(n=3, punct=False)
+    
     """
     )
+    d1, d2 = doc.n_grams(n=3, punct=True), doc.n_gramsPOS(n=3, punct=False)
     input("The first ones are stored in the dictionary d1...")
     print(
         f"""
@@ -424,7 +513,7 @@ if __name__ == "__main__":
     save_dataset_to_json([(d1, doc.translator)], "trash")
     print(
         f"""
-    We can retrive them again and save them into variables ready to ingest
+    We can retrieve them again and save them into variables ready to ingest
     to a machine learning model X, y = get_dataset_from_json(JSON_FOLDER/'trash.json')
     """
     )
