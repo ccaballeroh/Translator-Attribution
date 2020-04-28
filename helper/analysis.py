@@ -148,12 +148,12 @@ class MyDoc:
         assert isinstance(pos, bool), f"pos must be boolean and {pos} is given."
         features: DefaultDict[str, int] = defaultdict(int)
         if pos:
-            ngrams = self._ngrams_pos(n=n, punct=punct)
-            strings = (" ".join(pos for pos in ngram) for ngram in ngrams)
+            ngrams_str = self._ngrams_pos(n=n, punct=punct)
+            strings = (" ".join(pos for pos in ngram) for ngram in ngrams_str)
         else:
-            ngrams = self._ngrams_tokens(n=n, punct=punct)
+            ngrams_tkns = self._ngrams_tokens(n=n, punct=punct)
             strings = (
-                " ".join(token.text.lower() for token in ngram) for ngram in ngrams
+                " ".join(token.text.lower() for token in ngram) for ngram in ngrams_tkns
             )
         for string in strings:
             features[string] += 1
