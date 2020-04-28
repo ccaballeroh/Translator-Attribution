@@ -2,7 +2,7 @@
 for saving and retrieving feature sets to and from disk.
 
 The feature sets are a bag-of-words model of any combination of:
-    - word n-grams with n in {1, 2, 3} with or without punctuation
+    - word n-grams with or without punctuation
     - POS n-grams with n in {2, 3} with or without punctuation
     - syntactic n-grams with n in {2, 3}
     - cohesive markers with or without punctuation
@@ -40,7 +40,7 @@ class MyDoc:
     for returning feature sets.
     
     The feature sets are a bag-of-words model of any combination of:
-    - word n-grams with n in {1, 2, 3} with or without punctuation
+    - word n-grams with or without punctuation
     - POS n-grams with n in {2, 3} with or without punctuation
     - syntactic n-grams with n in {2, 3}
     - cohesive markers with or without punctuation
@@ -64,16 +64,14 @@ class MyDoc:
         translator of the text file
 
     Methods:
-    - n_grams(*, n: int, punct: bool) -> Dict[str, int] 
-        n in {1, 2, 3}, returns a dictionary of n-grams and their counts.
-        Can include punctuation if `punct` is True.
-    - n_gramsPOS(*, n: int, punct: bool) -> Dict[str, int] 
-        n in {2, 3}, returns a dictionary of POS n-grams and their counts.
-        Can include punctuation if `punct` is True.
+    - n_grams(*, n: int, punct: bool, pos: bool) -> Dict[str, int] 
+        Returns a dictionary of n-grams and their counts.
+        Can include punctuation if `punct` is True and be
+        POS n-grams if pos flag set to True 
     - n_grams_syntactic(*, n: int) -> Dict[str, int] 
         n in {2, 3}, returns a dictionary of syntactic n-grams and their counts.
     - cohesive(*, punct: bool) -> Dict[str, int]
-        returns a dictionary of cohesive markers.
+        Returns a dictionary of cohesive markers.
         Can include punctuation if `punct` is True.
     """
 
@@ -86,10 +84,10 @@ class MyDoc:
     ):
         """
         Parameters:
-        filename: Path - Path object to file to read
-        nlp: English - spaCy language model to process file
-        markersfile: Path - Path object to file with cohesive markers
-        folder: Path - Path to directory where JSON file with markers is
+        filename:    Path    - Path object to file to read
+        nlp:         English - spaCy language model to process file
+        markersfile: Path    - Path object to file with cohesive markers
+        folder:      Path    - Path to directory where JSON file with markers is
         """
         self.__file = filename
         self.nlp = nlp
@@ -127,71 +125,49 @@ class MyDoc:
         """Returns representation."""
         return str(self.doc)
 
-    def n_grams(self, *, n: int, punct: bool = False) -> Dict[str, int]:
-        """Returns bag-of-words model of n-grams with and without punctuation.
+    def n_grams(
+        self, *, n: int, punct: bool = False, pos: bool = False
+    ) -> Dict[str, int]:
+        """Returns bag-of-words model of n-grams or POS n-grams with and without punctuation.
 
-        n can only take values in {1, 2, 3}. The n-grams can include or omit the
-        punctuation marks depending on the value of the parameter punct. Both
-        parameters are keyword-only.
+        The n-grams can include or omit the punctuation marks depending on the
+        value of the parameter punct. Both parameters are keyword-only.
 
         Parameters:
-        n: int - value of n in n-grams
-        punct: bool - flag to consider or not punctuation
+        n:      int  - value of n in n-grams
+        punct:  bool - flag to consider or not punctuation
+        pos:    bool - option for "pos" n-grams 
 
         Returns:
-        A dictionary of n-gram and its count
+        A dictionary of POS n-grams and their counts
         """
-        assert n in {1, 2, 3}, f"Only for values of n in {{1, 2, 3}}, n={n} given."
+        assert isinstance(n, int) and n > 0, f"n positive integer and n={n} is given."
+        assert isinstance(punct, bool), f"punct must be Boolean and {punct} is given."
+        assert isinstance(pos, bool), f"pos must be boolean and {pos} is given."
         features: DefaultDict[str, int] = defaultdict(int)
-        ngrams = self._ngrams_tokens(n=n, punct=punct)
-        if n == 1:
-            strings_words = [token.text.lower() for token, in ngrams]
-            for word in strings_words:
-                features[word] += 1
-        elif n == 2:
-            strings_bigrams = [
-                " ".join([token1.text.lower(), token2.text.lower()])
-                for token1, token2 in ngrams
-            ]
-            for bigram in strings_bigrams:
-                features[bigram] += 1
-        elif n == 3:
-            strings_trigrams = [
-                " ".join(
-                    [token1.text.lower(), token2.text.lower(), token3.text.lower()]
-                )
-                for token1, token2, token3 in ngrams
-            ]
-            for trigram in strings_trigrams:
-                features[trigram] += 1
-        return dict(features)
-
-    def n_gramsPOS(self, *, n: int, punct: bool = False) -> Dict[str, int]:
-        assert n in {2, 3}, f"Only for values of n in {{2, 3}}, n={n} given."
-        features: DefaultDict[str, int] = defaultdict(int)
-        ngrams = self._ngrams_pos(n=n, punct=punct)
-        if n == 2:
-            strings_bigrams = [" ".join([pos1, pos2]) for pos1, pos2 in ngrams]
-            for bigram in strings_bigrams:
-                features[bigram] += 1
-        elif n == 3:
-            strings_trigrams = [
-                " ".join([pos1, pos2, pos3]) for pos1, pos2, pos3 in ngrams
-            ]
-            for trigram in strings_trigrams:
-                features[trigram] += 1
+        if pos:
+            ngrams = self._ngrams_pos(n=n, punct=punct)
+            strings = (" ".join(pos for pos in ngram) for ngram in ngrams)
+        else:
+            ngrams = self._ngrams_tokens(n=n, punct=punct)
+            strings = (
+                " ".join(token.text.lower() for token in ngram) for ngram in ngrams
+            )
+        for string in strings:
+            features[string] += 1
         return dict(features)
 
     def cohesive(self, *, punct: bool = False) -> Dict[str, int]:
-        """Returns cohesive markers values from a spaCy doc.
+        """Returns cohesive markers values.
 
-        The function takes as inputs a processed document,
-        a matcher object and a flag to take into account the punctuation
-        surrounding the marker.
+        It process the document using a spaCy PhraseMatcher to
+        finde the cohesive markers given in a list.
 
-        :extended 'Boolean'       - Flag to take into account punctuation
+        Parameters:
+        punct: bool - Flag to take into account punctuation.
 
-        Returns a dictionary with markers as keys and counts as values.
+        Returns:
+        Dictionary with markers as keys and counts as values.
         """
         doc = self.doc
         matcher = self.matcher
@@ -484,7 +460,7 @@ if __name__ == "__main__":
     
     """
     )
-    d1, d2 = doc.n_grams(n=3, punct=True), doc.n_gramsPOS(n=3, punct=False)
+    d1, d2 = doc.n_grams(n=3, punct=True), doc.n_grams(n=3, punct=False, pos=True)
     input("The first ones are stored in the dictionary d1...")
     print(
         f"""
