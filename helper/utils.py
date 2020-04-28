@@ -27,10 +27,14 @@ def clean_example():
     cleaning(path=JSON_FOLDER, extension=".json", affix="trash")
 
     CORPORA = Path(r"./Corpora/Proc_Quixote")
-    cleaning(path=CORPORA, extension=".txt", affix="proc")
+    if CORPORA.exists():
+        cleaning(path=CORPORA, extension=".txt", affix="proc")
+        CORPORA.rmdir()
 
     CORPORA = Path(r"./Corpora/Proc_Ibsen")
-    cleaning(path=CORPORA, extension=".txt", affix="proc")
+    if CORPORA.exists():
+        cleaning(path=CORPORA, extension=".txt", affix="proc")
+        CORPORA.rmdir()
 
     SN_FOLDER = Path(r"./auxfiles/txt")
     cleaning(path=(SN_FOLDER / "Quixote"), extension=".txt", affix="sn")
