@@ -6,7 +6,7 @@ __pycache__
 Trash
 auxfiles/json/features*.json
 auxfiles/logs
-auxfiles/pickle/*.pickle
+auxfiles/pickle
 auxfiles/svg
 auxfiles/txt/Quixote/*.txt
 auxfiles/txt/Ibsen/*.txt
