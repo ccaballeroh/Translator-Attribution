@@ -14,7 +14,7 @@ def remove_numbers(text: str) -> str:
     Using regex, finds and substitute with a blak space numbers of the form
     -[12]- or -(12)- or [12] or (12)
     
-    Inputs:
+    Parameters:
     text: str - string where to remove numbers from
 
     Returns:
@@ -28,7 +28,7 @@ def remove_numbers(text: str) -> str:
 def collapse_spaces(text: str) -> str:
     """Substitutes two or more spaces with only one.
 
-    Inputs:
+    Parameters:
     text: str - string where to do the replacement
 
     Returns:
@@ -42,7 +42,7 @@ def collapse_spaces(text: str) -> str:
 def remove_special(text: str, REPLACE: Dict[str, str]) -> str:
     """Replaces special characters with conventional ones.
 
-    Inputs:
+    Parameters:
     text: str - text where to replace the special characters
     REPLACE: Dict[str, str] - dictionary of mappinps of special characters to their
                               substitutions
@@ -61,7 +61,7 @@ def special_characters(INPUT_FOLDER: Path) -> List[str]:
     A special character is all that has a Unicode greater than 127.
     This function is used only once to manually build the replacement dictionary.
     
-    Inputs:
+    Parameters:
     INPUT_FOLDER: Path - Path object with directory where to read all files
     
     Returns:
@@ -82,7 +82,7 @@ def preprocess(INPUT: Path, OUTPUT: Path, REPLACE: Dict[str, str]) -> None:
     If the output directory does not exist, it creates it. Checks if input directory
     exists.
 
-    Inputs:
+    Parameters:
     INPUT: Path - directory where to read from the files
     OUTPUT: Path - directory where to write the processed files
     REPLACE: dict - mapping of special characters to replace
@@ -115,7 +115,7 @@ def remove_front_back_matter(filename: Path, OUTPUT: Path) -> None:
     at the end of the original file containing legal information
     from Project Gutenberg.
     
-    Inputs:
+    Parameters:
     filename: Path - name of the file to process
     out_folder: Path - name of the outout folder
     
@@ -168,7 +168,7 @@ def chunks(filename: Path, CHUNK_SIZE: int = 5000) -> Generator[str, None, None]
 def remove_temp(TEMP: Path) -> None:
     """Deletes folder with affix "temp" along all its contents.
 
-    Inputs:
+    Parameters:
     TEMP: Path - Directory to delete
 
     Returns:
@@ -190,7 +190,7 @@ def quixote() -> None:
     characters with a hard-coded mapping constructed after inspecting all the
     special characters used in the corpus.
     
-    Inputs:
+    Parameters:
     None
 
     Returns:
@@ -222,7 +222,7 @@ def ibsen() -> None:
     characters used in the corpus. The temporary folder used for the
     intermediate steps is deleted by the end.
     
-    Inputs:
+    Parameters:
     None
 
     Returns:
