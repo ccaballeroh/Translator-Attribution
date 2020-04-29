@@ -1,3 +1,5 @@
+**NOTE:** Update name of folder in Google Drive
+
 # Important!
 
 - Clone or download this repository in a Google Drive folder named `Translator-attribution`.
@@ -5,6 +7,7 @@
 - run `run_first.py`
 - Open `01Processing` in Google Colab
 - Run `02Experiments` in Google Colab
+
 
 # TranslatorAttribution
 Repository for holding all the files necessary of my master's project
