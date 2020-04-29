@@ -3,8 +3,8 @@ for saving and retrieving feature sets to and from disk.
 
 The feature sets are a bag-of-words model of any combination of:
     - word n-grams with or without punctuation
-    - POS n-grams with n in {2, 3} with or without punctuation
-    - syntactic n-grams with n in {2, 3}
+    - POS n-grams with or without punctuation
+    - syntactic n-grams with n in [2, 7]
     - cohesive markers with or without punctuation
 
 They are returned as a dictionary of {feature : counts, ...} easily serialized to a
