@@ -1,3 +1,11 @@
+# Important!
+
+- Clone or download this repository in a Google Drive folder named `Translator-attribution`.
+- Use conda to create a new environment
+- run `run_first.py`
+- Open `01Processing` in Google Colab
+- Run `02Experiments` in Google Colab
+
 # TranslatorAttribution
 Repository for holding all the files necessary of my master's project
 
@@ -19,3 +27,5 @@ The file structure in the computer is as follows:
   
   Files from the `auxfiles`, `Network motifs paper`, `pan17-author-clustering-training-dataset-2017-02-15`, and `Trash` folders are not
   under version control due to their size. However, all the code necessary is along with the text files used.
+
+
