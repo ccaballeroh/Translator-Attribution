@@ -12,6 +12,7 @@ json file when stored in lists.
 """
 
 from collections import defaultdict
+from helper import ROOT
 from pathlib import Path
 from spacy.tokens.doc import Doc
 from spacy.lang.en import English
@@ -24,16 +25,20 @@ import re
 import spacy
 import subprocess
 
-
 __all__ = [
     "MyDoc",
     "save_dataset_to_json",
     "get_dataset_from_json",
 ]
 
-TXT_FOLDER = Path(r"./auxfiles/txt/")
-JSON_FOLDER = Path(r"./auxfiles/json/")
 MFILE = Path(r"markersList.json")
+JSON_FOLDER = Path(fr"{ROOT}/auxfiles/json/")
+TXT_FOLDER = Path(fr"{ROOT}/auxfiles/txt/")
+if not TXT_FOLDER.exists():
+    TXT_FOLDER.mkdir()
+    for author in ["Quixote", "Ibsen"]:
+        author_folder = TXT_FOLDER / f"{author}"
+        author_folder.mkdir()
 
 
 class MyDoc:
@@ -260,9 +265,9 @@ class MyDoc:
         command = subprocess.Popen(
             [
                 "python",
-                "./helper/sn_grams3.py",
-                "./auxfiles/txt/%s/%s" % (author, filename),
-                "./auxfiles/txt/%s/%ssn.txt" % (author, filename[:-10]),
+                "%s/helper/sn_grams3.py" % ROOT,
+                "%s/auxfiles/txt/%s/%s" % (ROOT, author, filename),
+                "%s/auxfiles/txt/%s/%ssn.txt" % (ROOT, author, filename[:-10]),
                 "%d" % minimum,  # minimum n
                 "%d" % maximum,  # maximum n
                 "5",

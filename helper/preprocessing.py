@@ -1,11 +1,13 @@
 """Functions used to preprocess the corpora"""
 
-import os
-import re
+from helper import ROOT
 from pathlib import Path
 from typing import Dict, Generator, List, Set
+import os
+import re
 
-CORPORA = Path(r"./Corpora/")
+
+CORPORA = Path(fr"{ROOT}/Corpora/")
 
 
 def remove_numbers(text: str) -> str:
