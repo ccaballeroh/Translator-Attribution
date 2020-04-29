@@ -97,7 +97,7 @@ def preprocess(INPUT: Path, OUTPUT: Path, REPLACE: Dict[str, str]) -> None:
         OUTPUT.mkdir()
         print(f"Directory {OUTPUT} created!")
     for filename in INPUT.iterdir():
-        with filename.open("r") as file:
+        with filename.open("r", encoding="UTF-8") as file:
             file_content = file.read()
         file_content = collapse_spaces(remove_numbers(file_content))
         file_content = remove_special(file_content, REPLACE)
