@@ -507,34 +507,48 @@ def _example() -> MyDoc:
 
 
 if __name__ == "__main__":
-    print(
+    input(
         f"""
-    This is an example...
+    This is an example run...
     
     We're going to process the file *Jarvis_pq_ch1_proc.txt*
-    located in {Path.cwd()/'Corpora'/'Proc_Quixote'} 
+    located in {Path.cwd()/'Corpora'/'Proc_Quixote'}... 
     """
     )
     doc = _example()
-    print(
+    input(
         f"""
-    Now, the document *doc* is of type {type(doc)}.
-    We can inspect its properties such as doc.filename = {doc.filename},
-    its translator doc.translator = {doc.translator}, and doc.file =
-    {doc.file} of type {type(doc.file)}
+    Now, the document *doc* is of type:
+    
+    {type(doc)}
+    
+    We can inspect its properties such as:
+    
+    doc.filename = {doc.filename},
+    
+    its translator doc.translator = {doc.translator},
+    
+    and doc.file = {doc.file}
+    
+    of type {type(doc.file)}
+
+    ...
     """
     )
-    input("...")
-    print(
+    input(
         f"""
-    We can now extract the features. For example, we can extract trigrams with
-    punctuation along with POS trigrams without punctuation:
+    We can now extract the features.
     
-    d1, d2 = doc.n_grams(n=3, punct=True), doc.n_gramsPOS(n=3, punct=False)
+    For example, we can extract trigrams with punctuation
+    along with POS trigrams without punctuation:
     
+    d1, d2 = doc.n_grams(n=3, punct=True), doc.n_grams(n=3, punct=False, pos=True)
+    
+    ...
     """
     )
     d1, d2 = doc.n_grams(n=3, punct=True), doc.n_grams(n=3, punct=False, pos=True)
+
     input("The first ones are stored in the dictionary d1...")
     print(
         f"""
@@ -554,22 +568,24 @@ if __name__ == "__main__":
     {d1}
     """
     )
-    input("...")
-    print(
+    input(
         f"""
-    And save the result to disk save_dataset_to_json([(d1,doc.translator)], "trash")
+    And save the result to disk save_dataset_to_json([(d1,doc.translator)], "trash")...
     """
     )
     save_dataset_to_json([(d1, doc.translator)], "trash")
-    print(
+    input(
         f"""
     We can retrieve them again and save them into variables ready to ingest
     to a machine learning model X, y = get_dataset_from_json(JSON_FOLDER/'trash.json')
+    ...
     """
     )
-    from helper.utils import clean_example
 
     X, y = get_dataset_from_json(JSON_FOLDER / "trash.json")
 
-    print(f"Deleting all files related to this example...")
+    input(f"Deleting all files related to this example...")
+
+    from helper.utils import clean_example
+
     clean_example()
