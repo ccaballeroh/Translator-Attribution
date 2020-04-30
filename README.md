@@ -2,7 +2,7 @@
 
 # Important!
 
-- Clone or download this repository in a Google Drive folder named `Translator-attribution`.
+- Clone or download this repository in a Google Drive folder named `Translator-Attribution`.
 - Use conda to create a new environment
 - run `run_first.py`
 - Open `01Processing` in Google Colab
