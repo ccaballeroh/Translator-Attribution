@@ -152,6 +152,7 @@ def chunks(filename: Path, CHUNK_SIZE: int = 5000) -> Generator[str, None, None]
     The output is a string with the following chunk size
     CHUNK_SIZE of the file 'filename' in the folder 'input folder'.
     
+    Parameters:
     filename: Path - Path object of file to process
     CHUNK_SIZE: int - size of chunk
     
