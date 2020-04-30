@@ -6,16 +6,7 @@ To accurately attribute a piece of text to a certain author (i.e., Authorship At
 
 For my thesis project, I want to attribute the translator of a text to its translator using linguitics-inspired features. The corpora comprises works by Norwegian playwright, Henrik Ibsen, and Spanish writer, Miguel de Cervantes. For the Ibsen corpus, there are parallel works translated by two people, whereas the Cervantes corpus is composed of three translations.
 
-This repository holds all the code and raw files necessary to replicate the results for my master's project. All the texts are in the `Corpora` folder in raw format.
-
-The file structure in the following:  
-
-  \auxfiles  
-  \Corpora  
-  \helper  
-  \results
-  *.ipynb
-  
+This repository holds all the code and raw files necessary to replicate the results for my master's project. All the texts are in the `Corpora` folder in raw format. 
 
 ## Important!
 
