@@ -1,4 +1,4 @@
-name: spacy
+name: translator-attribution
 channels:
   - conda-forge
   - defaults
@@ -117,13 +117,12 @@ dependencies:
   - zeromq=4.3.1=h33f27b4_3
   - zipp=0.6.0=py_0
   - pip:
-    - cycler==0.10.0
-    - en-core-web-md==2.2.0
-    - en-core-web-sm==2.2.0
-    - es-core-news-md==2.2.0
-    - kiwisolver==1.1.0
-    - matplotlib==3.1.1
-    - pyparsing==2.4.5
-    - scikit-plot==0.3.7
+      - cycler==0.10.0
+      - en-core-web-md==2.2.0
+      - en-core-web-sm==2.2.0
+      - es-core-news-md==2.2.0
+      - kiwisolver==1.1.0
+      - matplotlib==3.1.1
+      - pyparsing==2.4.5
+      - scikit-plot==0.3.7
 prefix: D:\ProgramData\Anaconda3\envs\spacy
-
