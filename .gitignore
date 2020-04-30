@@ -1,6 +1,7 @@
 .ipynb_checkpoints
 .mypy_cache
 .vscode
+results
 Corpora/Proc_*
 __pycache__
 Trash
