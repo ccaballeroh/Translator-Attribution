@@ -18,5 +18,5 @@ This repository holds all the code and raw files necessary to replicate the resu
   ```
 
 - In that new environment, run `run_first.py` to preprocess all the files in the corpora.
-- Now, you can either open `01Processing.ipynb` in Google Colab or in your local computer and run it.
-- You can run `02Experiments.ipynb` in Google Colab preferentably or locally if you have a powerful enough computer.
+- Now, you can either open [01Processing](./01Processing.ipynb) in Google Colab or in your local computer and run it.
+- You can run [02Experiments](./02Experiments.ipynb) in Google Colab preferentably or locally if you have a powerful enough computer.
