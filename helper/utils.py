@@ -1,7 +1,55 @@
-"""Util functions to clean directory during processing and testing."""
+"""Util functions"""
 
+from collections import defaultdict
 from helper import ROOT
 from pathlib import Path
+from sklearn.feature_extraction import DictVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import LabelEncoder
+from typing import Dict, List
+
+
+def return_n_most_important(
+    *, clf: LogisticRegression, v: DictVectorizer, encoder: LabelEncoder, n: int = 10
+) -> Dict[str, List[str]]:
+    """Returns n features with largest weights in a logistic regression classifier.
+
+    As inputs a trained logistic regressor along with the DictVectorizer and
+    LabelEncoder used to encode dictionary of feature names and values and
+    classes names, and the number of features to return.
+
+    Parameters:
+    clf:        LogisticRegression  - A trained logistic regression classifier
+    v:          DictVectorizer      - Scikit-learn DictVectorizer used for transforming
+                                    dict of features and counts to a numpy array
+    encoder:    LabelEncoder        - Scikit-learn LabelEncoder used to encoding classes names  
+    n:          int                 - number of most relevant features used
+
+    Returns:
+    A dictionary that maps name of class to list of n most relevant features
+    """
+    most_important: defaultdict = defaultdict(list)
+    classes_names = encoder.classes_
+    feature_names = v.get_feature_names()
+    if len(classes_names) == 2:
+
+        indices = clf.coef_[0].argsort()[-n:][::-1]
+        for index in indices:
+            class_name = encoder.inverse_transform([0])[0]
+            most_important[class_name].append(feature_names[index])
+
+        indices = (-clf.coef_[0]).argsort()[-n:][::-1]
+        for index in indices:
+            class_name = encoder.inverse_transform([1])[0]
+            most_important[class_name].append(feature_names[index])
+
+    elif len(classes_names) > 2:
+        for i in range(len(classes_names)):
+            indices = clf.coef_[i].argsort()[-n:][::-1]  # n largest elements
+            for index in indices:
+                class_name = encoder.inverse_transform([i])[0]
+                most_important[class_name].append(feature_names[index])
+    return dict(most_important)
 
 
 def cleaning(*, path: Path, extension: str, affix: str) -> None:
