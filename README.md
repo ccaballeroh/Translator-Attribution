@@ -16,5 +16,5 @@ This repository holds all the code and raw files necessary to replicate the resu
   ```
   >> conda env create --file translator-attribution.yml
   ```
-- Now, you can either open [01Processing](./01Processing.ipynb) in Google Colab or in your local computer and run it.
+- Now, you can in that new environment (use `conda activate translator-attribution`) either open [01Processing](./01Processing.ipynb) locally or run it in Google Colab.
 - You can run [02Experiments](./02Experiments.ipynb) in Google Colab preferentably or locally if you have a powerful enough computer.
