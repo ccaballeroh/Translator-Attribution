@@ -3,6 +3,7 @@
 from collections import defaultdict
 from helper import ROOT
 from pathlib import Path
+from pandas import DataFrame
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import LabelEncoder
@@ -11,7 +12,7 @@ from typing import Dict, List
 
 def return_n_most_important(
     *, clf: LogisticRegression, v: DictVectorizer, encoder: LabelEncoder, n: int = 10
-) -> Dict[str, List[str]]:
+) -> Dict[str, DataFrame]:
     """Returns n features with largest weights in a logistic regression classifier.
 
     As inputs a trained logistic regressor along with the DictVectorizer and
@@ -28,27 +29,41 @@ def return_n_most_important(
     Returns:
     A dictionary that maps name of class to list of n most relevant features
     """
-    most_important: defaultdict = defaultdict(list)
+    most_important: defaultdict = defaultdict(DataFrame)
     classes_names = encoder.classes_
     feature_names = v.get_feature_names()
+    columns = ["Feature", "Weight"]
     if len(classes_names) == 2:
 
         indices = clf.coef_[0].argsort()[-n:][::-1]
+        data = []
         for index in indices:
-            class_name = encoder.inverse_transform([0])[0]
-            most_important[class_name].append(feature_names[index])
+            data.append([feature_names[index], clf.coef_[0][index]])
+        class_name = encoder.inverse_transform([0])[0]
+        most_important[class_name] = DataFrame(
+            data, columns=columns, index=range(1, n + 1)
+        )
 
         indices = (-clf.coef_[0]).argsort()[-n:][::-1]
+        data = []
         for index in indices:
-            class_name = encoder.inverse_transform([1])[0]
-            most_important[class_name].append(feature_names[index])
+            data.append([feature_names[index], (-clf.coef_[0])[index]])
+        class_name = encoder.inverse_transform([1])[0]
+        most_important[class_name] = DataFrame(
+            data, columns=columns, index=range(1, n + 1)
+        )
 
     elif len(classes_names) > 2:
+
         for i in range(len(classes_names)):
             indices = clf.coef_[i].argsort()[-n:][::-1]  # n largest elements
+            data = []
             for index in indices:
-                class_name = encoder.inverse_transform([i])[0]
-                most_important[class_name].append(feature_names[index])
+                data.append([feature_names[index], clf.coef_[i][index]])
+            class_name = encoder.inverse_transform([i])[0]
+            most_important[class_name] = DataFrame(
+                data, columns=columns, index=range(1, n + 1)
+            )
     return dict(most_important)
 
 
