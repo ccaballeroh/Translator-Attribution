@@ -27,7 +27,8 @@ def return_n_most_important(
     n:          int                 - number of most relevant features used
 
     Returns:
-    A dictionary that maps name of class to list of n most relevant features
+    A dictionary that maps name of class to DataFrame of n most relevant features and
+    their weights.
     """
     most_important: defaultdict = defaultdict(DataFrame)
     classes_names = encoder.classes_
