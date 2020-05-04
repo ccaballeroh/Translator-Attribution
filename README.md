@@ -18,3 +18,4 @@ This repository holds all the code and raw files necessary to replicate the resu
   ```
 - Now, you can in that new environment (use `conda activate translator-attribution`) either open [01Processing](./01Processing.ipynb) locally or run it in Google Colab.
 - You can run [02Experiments](./02Experiments.ipynb) in Google Colab preferentably or locally if you have a powerful enough computer.
+- [03Most_important_features](./03Most_important_features.ipynb) extracts the most relevant features for each translator and generates loads of figures and tables (csv, html, and LaTeX) with the results. Although, the number of figures and files generated is above 800 hundred (for all the combinations possible), the folder weighs less than 9 MB.
