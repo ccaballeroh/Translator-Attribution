@@ -24,11 +24,11 @@ def return_n_most_important(
     classes names, and the number of features to return.
 
     Parameters:
-    clf:        LogisticRegression  - A trained logistic regression classifier
-    v:          DictVectorizer      - Scikit-learn DictVectorizer used for transforming
-                                    dict of features and counts to a numpy array
-    encoder:    LabelEncoder        - Scikit-learn LabelEncoder used to encoding classes names  
-    n:          int                 - number of most relevant features used
+    clf:            LogisticRegression    - A trained logistic regression classifier
+    feature_names:  List[str]             - List of strings with the features name used in clf
+                                            dict of features and counts to a numpy array
+    encoder:        LabelEncoder          - Scikit-learn LabelEncoder used to encoding classes names  
+    n:              int                   - number of most relevant features used
 
     Returns:
     A dictionary that maps name of class to DataFrame of n most relevant features and
