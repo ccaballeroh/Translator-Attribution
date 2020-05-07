@@ -11,7 +11,11 @@ from typing import Dict, List
 
 
 def return_n_most_important(
-    *, clf: LogisticRegression, v: DictVectorizer, encoder: LabelEncoder, n: int = 10
+    *,
+    clf: LogisticRegression,
+    feature_names: List[str],
+    encoder: LabelEncoder,
+    n: int = 10,
 ) -> Dict[str, DataFrame]:
     """Returns n features with largest weights in a logistic regression classifier.
 
@@ -32,7 +36,7 @@ def return_n_most_important(
     """
     most_important: defaultdict = defaultdict(DataFrame)
     classes_names = encoder.classes_
-    feature_names = v.get_feature_names()
+    # feature_names = v.get_feature_names()
     columns = ["Feature", "Weight"]
     if len(classes_names) == 2:
 
