@@ -11,11 +11,13 @@ This repository holds all the code and raw files necessary to replicate the resu
 ## Important!
 
 - Clone or download this repository in a Google Drive folder named `Translator-Attribution`.
+- You can execute now the Notebooks on Colab without installing anything&mdash;starting with [01Processing](./01Processing.ipynb).
+
+### To run locally
+
 - Use conda to create a new environment called `translator-attribution`.
 
   ```
   >> conda env create --file translator-attribution.yml
   ```
-- Now, you can in that new environment (use `conda activate translator-attribution`) either open [01Processing](./01Processing.ipynb) locally or run it in Google Colab.
-- You can run [02Experiments](./02Experiments.ipynb) in Google Colab preferentably or locally if you have a powerful enough computer.
-- [03Most_important_features](./03Most_important_features.ipynb) extracts the most relevant features for each translator and generates loads of figures and tables (csv, html, and LaTeX) with the results. Although, the number of figures and files generated is above 800 hundred (for all the combinations possible), the folder weighs less than 9 MB.
+- Now, you can, in that new environment (use `conda activate translator-attribution`), open the Notebooks in Jupyter&mdash;starting with [01Processing](./01Processing.ipynb).
