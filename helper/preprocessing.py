@@ -13,7 +13,7 @@ CORPORA = Path(fr"{ROOT}/Corpora/")
 def remove_numbers(text: str) -> str:
     """Remove numbers between brackets and parentheses with hyphens or not.
 
-    Using regex, finds and substitute with a blak space numbers of the form
+    Using regex, finds and substitute with a blank space numbers of the form
     -[12]- or -(12)- or [12] or (12)
     
     Parameters:
@@ -247,8 +247,8 @@ def ibsen() -> None:
     OUTPUT_FOLDER = CORPORA / "Proc_Ibsen/"
     REPLACE = dict(  # manually constructed after running special_characters(...)
         zip(
-            ["ê", "ü", "é", "â", "ú", "ó", "ö", "ë"],
-            ["e", "u", "e", "a", "u", "o", "o", "e"],
+            ["ê", "ü", "é", "â", "ú", "ó", "ö", "ë", "[", "]"],
+            ["e", "u", "e", "a", "u", "o", "o", "e", "(", ")"],
         )
     )
     preprocess(INPUT_FOLDER, OUTPUT_FOLDER, REPLACE)
