@@ -492,10 +492,11 @@ def output_Stanford(sentence: Span, f: IO) -> None:
         if token == root:
             print(f"root(ROOT-0, {token.text}-{token.i+1})", file=f)
         else:
-            print(
-                f"{token.dep_}({token.head}-{token.head.i+1}, {token.text}-{token.i+1})",
-                file=f,
-            )
+            if token.dep_ != "punct":  # this line removes dependency to punctuation
+                print(
+                    f"{token.dep_}({token.head}-{token.head.i+1}, {token.text}-{token.i+1})",
+                    file=f,
+                )
     return None
 
 
