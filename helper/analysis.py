@@ -76,7 +76,7 @@ class MyDoc:
         Can include punctuation if `punct` is True and be
         POS n-grams if pos flag set to True 
     - n_grams_syntactic(*, n: int) -> Dict[str, int] 
-        n in {2, 3}, returns a dictionary of syntactic n-grams and their counts.
+        n in [2,7], returns a dictionary of syntactic n-grams and their counts.
     - cohesive(*, punct: bool) -> Dict[str, int]
         Returns a dictionary of cohesive markers.
         Can include punctuation if `punct` is True.
@@ -133,7 +133,7 @@ class MyDoc:
         return str(self.doc)
 
     def n_grams(
-        self, *, n: int, punct: bool = False, pos: bool = False
+        self, *, n: int, punct: bool = False, pos: bool = False, propn: bool = False
     ) -> Dict[str, int]:
         """Returns bag-of-words model of n-grams or POS n-grams with and without punctuation.
 
@@ -143,7 +143,8 @@ class MyDoc:
         Parameters:
         n:      int  - value of n in n-grams
         punct:  bool - flag to consider or not punctuation
-        pos:    bool - option for "pos" n-grams 
+        pos:    bool - option for "pos" n-grams
+        propn:  bool - flag for masking or not propn 
 
         Returns:
         A dictionary of POS n-grams and their counts
@@ -156,9 +157,9 @@ class MyDoc:
             ngrams_str = self._ngrams_pos(n=n, punct=punct)
             strings = (" ".join(pos for pos in ngram) for ngram in ngrams_str)
         else:
-            ngrams_tkns = self._ngrams_tokens(n=n, punct=punct)
+            ngrams_tkns = self._ngrams_tokens(n=n, punct=punct, propn=propn)
             strings = (
-                " ".join(token.text.lower() for token in ngram) for ngram in ngrams_tkns
+                " ".join(tokentext for tokentext in ngram) for ngram in ngrams_tkns
             )
         for string in strings:
             features[string] += 1
@@ -188,7 +189,7 @@ class MyDoc:
         return dict(features)
 
     def n_grams_syntactic(
-        self, *, n: int = 2, minimum: int = 2, maximum: int = 3
+        self, *, n: int = 2, minimum: int = 2, maximum: int = 3, propn: bool = True
     ) -> Dict[str, int]:
         """Returns bag-of-words model of syntactic n-grams.
 
@@ -199,9 +200,11 @@ class MyDoc:
         of 7.
 
         Parameters:
-        n:       int - value of n in n-grams
-        mimimum: int - minimum n to extract syntactic n-grams
-        maximum: int - maximim n to extract syntactic n-grams 
+        n:       int  - value of n in n-grams
+        mimimum: int  - minimum n to extract syntactic n-grams
+        maximum: int  - maximim n to extract syntactic n-grams
+        propn:   bool - flag 'True' includes proper nouns, 'False'
+                        substitute with 'PROPN'
 
         Returns:
         A dictionary of syntactic n-grams their counts
@@ -215,23 +218,28 @@ class MyDoc:
         ), f"n must be in [{minimum},{maximum}], n={n} given."
         author = self.author
         FOLDER = TXT_FOLDER / author
-        sn_file = self.file.stem + "_sn" + self.file.suffix
+        sn_file = (
+            self.file.stem
+            + f"_{'propn' if propn else 'no_propn'}_sn"
+            + self.file.suffix
+        )
         filename = FOLDER / sn_file
-        if not filename.exists() or self._syntactic_features(n=n) == {}:
+        if not filename.exists() or self._syntactic_features(n=n, propn=propn) == {}:
             print("Generating parsed and sn...")
-            self._generate_parsed()  # with stanford format
-            self._sn_generation(minimum=minimum, maximum=maximum)
-        return self._syntactic_features(n=n)
+            self._generate_parsed(propn=propn)  # with stanford format
+            self._sn_generation(minimum=minimum, maximum=maximum, propn=propn)
+        return self._syntactic_features(n=n, propn=propn)
 
     # helper functions
 
-    def _generate_parsed(self) -> None:
+    def _generate_parsed(self, *, propn: bool) -> None:
         """Creates a file with output Stanford-like for extracting syntactic n-grams.
 
         The file is created with an "_parsed" appended in the end.
 
         Parameters:
         None
+        propn: bool - flag for including or not proper nouns
 
         Returns:
         None        
@@ -239,14 +247,16 @@ class MyDoc:
         author = self.author
         FOLDER = TXT_FOLDER / author
         doc = self.doc
-        path = FOLDER / (self.file.stem + "_parsed.txt")
+        path = FOLDER / (
+            self.file.stem + f"_{'propn' if propn else 'no_propn'}_parsed.txt"
+        )
         with open(path, mode="w", encoding="UTF-8") as f:
             for sentence in doc.sents:
-                output_Stanford(sentence, f)
+                output_Stanford(sentence, f, propn=propn)
                 print("", file=f)
         return None
 
-    def _sn_generation(self, *, minimum: int, maximum: int) -> None:
+    def _sn_generation(self, *, minimum: int, maximum: int, propn: bool) -> None:
         """Extracts syntactic n-grams from file with stanford format.
 
         It calls a third-party script for extracting syntactic n-grams
@@ -259,8 +269,8 @@ class MyDoc:
         assert minimum < maximum
         author = self.author
         FOLDER = TXT_FOLDER / author
-        filename = self.file.stem + "_parsed.txt"
-        assert (FOLDER / filename).exists(), "Parsed file {filename} not found"
+        filename = self.file.stem + f"_{'propn' if propn else 'no_propn'}_parsed.txt"
+        assert (FOLDER / filename).exists(), f"Parsed file {filename} not found"
         # subprocess that calls third party script
         command = subprocess.Popen(
             [
@@ -281,13 +291,14 @@ class MyDoc:
         print(f"Deleted {FOLDER / filename}")
         return None
 
-    def _syntactic_features(self, *, n: int) -> Dict[str, int]:
+    def _syntactic_features(self, *, n: int, propn: bool) -> Dict[str, int]:
         """Returns syntactic ngrams values from text file with analysis.
         
         The function takes as the value of n which can go from 2 to 7.
         
         Parameters:
         n: int - n for syntactic n-grams
+        propn: bool - flag for including or masking proper nouns
         
         Returns:
         Dictionary with syntactic n-grams as keys and counts as values.
@@ -296,7 +307,11 @@ class MyDoc:
         assert n >= 2 and n <= 7
         author = self.author
         FOLDER = TXT_FOLDER / author
-        sn_file = self.file.stem + "_sn" + self.file.suffix
+        sn_file = (
+            self.file.stem
+            + f"_{'propn' if propn else 'no_propn'}_sn"
+            + self.file.suffix
+        )
         filename = FOLDER / sn_file
         sn_pattern = r"(\w+\[.+\])\s+(\d)"  # [word[more[more]]] 1
         features: DefaultDict[str, int] = defaultdict(int)
@@ -315,15 +330,18 @@ class MyDoc:
         return dict(features)
 
     def _ngrams_tokens(
-        self, *, n: int, punct: bool
-    ) -> Generator[List[Token], None, None]:
+        self, *, n: int, punct: bool, propn: bool
+    ) -> Generator[List[str], None, None]:
         """Returns a generator of lists of n-grams of spaCy tokens.
+        Omitting proper nouns. It replaces them with "PROPN".
 
         The function takes a value for n and a flag to consider punctuation.
+        If the flag is passed ot will only yield '*' characters and punctuation.
         
         Parameters:
         n:     int  - value for n
         punct: bool - flag for punctuation
+        propn: bool - flag masking or not proper nouns
         
         Returns:
         Generator of lists of slices of spaCy tokens.
@@ -333,9 +351,18 @@ class MyDoc:
         assert n > 0
         doc = self.doc
         if punct:
-            tokens = [token for token in doc]
+            tokens = ["*" if token.pos_ != "PUNCT" else token.text for token in doc]
+        elif not propn:
+            tokens = []
+            for token in doc:
+                if token.pos_ == "PUNCT":
+                    pass
+                elif token.pos_ == "PROPN":
+                    tokens.append(token.pos_)
+                else:
+                    tokens.append(token.text.lower())
         else:
-            tokens = [token for token in doc if token.pos_ != "PUNCT"]
+            tokens = [token.text.lower() for token in doc if token.pos_ != "PUNCT"]
         return (tokens[i : i + n] for i in range(len(tokens) + 1 - n))
 
     def _ngrams_pos(self, n: int, punct: bool) -> Generator[List[str], None, None]:
@@ -477,7 +504,7 @@ def get_root(sentence: Span) -> Token:
     return root_node
 
 
-def output_Stanford(sentence: Span, f: IO) -> None:
+def output_Stanford(sentence: Span, f: IO, propn: bool) -> None:
     """Prints to a file the Stanford format of a given sentence.
 
     Parameters:
@@ -490,25 +517,35 @@ def output_Stanford(sentence: Span, f: IO) -> None:
     root = get_root(sentence)
     for token in sentence:
         if token == root:
-            print(f"root(ROOT-0, {token.text}-{token.i+1})", file=f)
+            print(
+                f"root(ROOT-0, {token.pos_ if token.pos_ == 'PROPN' else token.text.lower()}-{token.i+1})",
+                file=f,
+            )
         else:
-            if token.dep_ != "punct":  # this line removes dependency to punctuation
-                print(
-                    f"{token.dep_}({token.head}-{token.head.i+1}, {token.text}-{token.i+1})",
-                    file=f,
-                )
+            if token.dep_ != "punct":  # this line removes punctuation dependency
+                if not propn:
+                    print(
+                        f"{token.dep_}({token.head.pos_ if token.head.pos_ == 'PROPN' else token.head.text.lower()}-{token.head.i+1}, {token.pos_ if token.pos_ == 'PROPN' else token.text.lower()}-{token.i+1})",
+                        file=f,
+                    )
+                else:
+                    print(
+                        f"{token.dep_}({token.head.text.lower()}-{token.head.i+1}, {token.text.lower()}-{token.i+1})",
+                        file=f,
+                    )
+
     return None
 
 
 def _example() -> MyDoc:
     # nlp = English()
     nlp = spacy.load("en_core_web_sm")
-    filename: Path = Path.cwd() / "Corpora" / "Proc_Quixote" / "Jarvis_p1_ch1_proc.txt"
+    filename: Path = Path.cwd() / "Corpora" / "Proc_Ibsen" / "Archer_Ghosts_proc_part005_proc.txt"
     if not filename.exists():
-        print("Preprocessing Quixote texts...")
-        from helper.preprocessing import quixote
+        print("Preprocessing Ibsen texts...")
+        from helper.preprocessing import ibsen
 
-        quixote()
+        ibsen()
     return MyDoc(filename, nlp)
 
 
@@ -517,8 +554,8 @@ if __name__ == "__main__":
         f"""
     This is an example run...
     
-    We're going to process the file *Jarvis_pq_ch1_proc.txt*
-    located in {Path.cwd()/'Corpora'/'Proc_Quixote'}... 
+    We're going to process the file *Archer_Ghosts_part005.txt*
+    located in {Path.cwd()/'Corpora'/'Proc_Ibsen'}... 
     """
     )
     doc = _example()
