@@ -3,6 +3,7 @@
 .vscode
 results
 Corpora/Proc_*
+Corpora/Original_*
 __pycache__
 Trash
 auxfiles/json/features*.json
