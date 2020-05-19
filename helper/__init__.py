@@ -1,4 +1,4 @@
-__all__ = ["analysis", "preprocessing", "utils", "IN_COLAB", "ROOT"]
+__all__ = ["analysis", "preprocessing", "features", "utils", "IN_COLAB", "ROOT"]
 __version__ = "1.0"
 __author__ = "Christian Caballero <cdch10@gmail.com>"
 
