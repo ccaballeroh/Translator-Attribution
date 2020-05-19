@@ -24,6 +24,14 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
+__all__ = [
+    "convert_data",
+    "train_extract_most_relevant",
+    "plot_most_relevant",
+    "save_tables",
+    "plot_confusion_matrix",
+]
+
 RESULTS_FOLDER = Path(fr"{ROOT}/results/")
 if not RESULTS_FOLDER.exists():
     RESULTS_FOLDER.mkdir()
@@ -47,7 +55,7 @@ if not MOST_RELEVANT_FOLDER.exists():
 
 def convert_data(file: Path) -> Dict[str, Any]:
     X_dict, y_str = get_dataset_from_json(file)
-    dict_vectorizer = DictVectorizer(sparse=True)
+    dict_vectorizer = DictVectorizer(sparse=False)
     encoder = LabelEncoder()
     X, y = dict_vectorizer.fit_transform(X_dict), encoder.fit_transform(y_str)
     return {
@@ -66,7 +74,7 @@ def train_extract_most_relevant(
     encoder: LabelEncoder,
     dict_vectorizer: DictVectorizer,
     feature_selection: bool,
-    k: int = 50,
+    k: int = 45,
     n: int = 15,
 ) -> Dict[str, Any]:
 
@@ -78,11 +86,14 @@ def train_extract_most_relevant(
     else:
         feature_names = dict_vectorizer.get_feature_names()
 
+    scaler = StandardScaler()
     X_, y_ = shuffle(X, y, random_state=24)
 
     if model_name == "LogisticRegression":
+        X = scaler.fit_transform(X)
         model = LogisticRegression()
     elif model_name == "SVM":
+        X = scaler.fit_transform(X)
         model = LinearSVC()
     elif model_name == "NaiveBayes":
         model = MultinomialNB()
@@ -97,6 +108,7 @@ def train_extract_most_relevant(
 
     return {
         "clf": clf,
+        "scaler": scaler,
         "most_relevant": most_relevant,
     }
 
@@ -170,6 +182,8 @@ def plot_confusion_matrix(
     X: np.ndarray, y: np.ndarray, encoder: LabelEncoder, file: Path
 ) -> None:
     sns.set(font_scale=1.4)
+    scaler = StandardScaler()
+    X = scaler.fit_transform(X)
     X_, y_ = shuffle(X, y, random_state=24)
     log_model = LogisticRegression()
 
