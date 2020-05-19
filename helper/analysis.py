@@ -517,10 +517,15 @@ def output_Stanford(sentence: Span, f: IO, propn: bool) -> None:
     root = get_root(sentence)
     for token in sentence:
         if token == root:
-            print(
-                f"root(ROOT-0, {token.pos_ if token.pos_ == 'PROPN' else token.text.lower()}-{token.i+1})",
-                file=f,
-            )
+            if not propn:
+                print(
+                    f"root(ROOT-0, {token.pos_ if token.pos_ == 'PROPN' else token.text.lower()}-{token.i+1})",
+                    file=f,
+                )
+            else:
+                print(
+                    f"root(ROOT-0, {token.text.lower()}-{token.i+1})", file=f,
+                )
         else:
             if token.dep_ != "punct":  # this line removes punctuation dependency
                 if not propn:
