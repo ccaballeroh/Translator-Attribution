@@ -44,7 +44,7 @@ def return_n_most_important(
         data = []
         for index in indices:
             data.append([feature_names[index], clf.coef_[0][index]])
-        class_name = encoder.inverse_transform([0])[0]
+        class_name = encoder.inverse_transform([1])[0]
         most_important[class_name] = DataFrame(
             data, columns=columns, index=range(1, n + 1)
         )
@@ -53,7 +53,7 @@ def return_n_most_important(
         data = []
         for index in indices:
             data.append([feature_names[index], (-clf.coef_[0])[index]])
-        class_name = encoder.inverse_transform([1])[0]
+        class_name = encoder.inverse_transform([0])[0]
         most_important[class_name] = DataFrame(
             data, columns=columns, index=range(1, n + 1)
         )
