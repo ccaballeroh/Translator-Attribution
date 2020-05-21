@@ -1,11 +1,11 @@
 """Functions used to preprocess the corpora"""
 
-from helper import ROOT
-from pathlib import Path
-from typing import Dict, Generator, List, Set
 import os
 import re
+from pathlib import Path
+from typing import Dict, Generator, List, Set
 
+from helper import ROOT
 
 CORPORA = Path(fr"{ROOT}/Corpora/")
 
