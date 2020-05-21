@@ -1,28 +1,26 @@
 from collections import defaultdict
-from helper import ROOT
-from helper.analysis import get_dataset_from_json
-from helper.analysis import JSON_FOLDER
-from helper.utils import return_n_most_important
 from pathlib import Path
-from sklearn.feature_extraction import DictVectorizer
-from sklearn.feature_selection import chi2, SelectKBest
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, confusion_matrix
-from sklearn.model_selection import cross_val_score
-from sklearn.model_selection import cross_val_predict
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import LabelEncoder
-from sklearn.preprocessing import normalize
-from sklearn.preprocessing import StandardScaler
-from sklearn.svm import LinearSVC
-from sklearn.utils import shuffle
-from sklearn.utils.multiclass import unique_labels
 from typing import Any, Dict, List
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+from sklearn.feature_extraction import DictVectorizer
+from sklearn.feature_selection import SelectKBest, chi2
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.model_selection import cross_val_predict, cross_val_score
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import LabelEncoder, StandardScaler, normalize
+from sklearn.svm import LinearSVC
+from sklearn.utils import shuffle
+from sklearn.utils.multiclass import unique_labels
+
+from helper import ROOT
+from helper.analysis import JSON_FOLDER, get_dataset_from_json
+from helper.utils import return_n_most_important
 
 __all__ = [
     "convert_data",
@@ -55,7 +53,7 @@ if not MOST_RELEVANT_FOLDER.exists():
 
 def convert_data(file: Path) -> Dict[str, Any]:
     X_dict, y_str = get_dataset_from_json(file)
-    dict_vectorizer = DictVectorizer(sparse=False)
+    dict_vectorizer = DictVectorizer(sparse=True)
     encoder = LabelEncoder()
     X, y = dict_vectorizer.fit_transform(X_dict), encoder.fit_transform(y_str)
     return {
@@ -86,7 +84,7 @@ def train_extract_most_relevant(
     else:
         feature_names = dict_vectorizer.get_feature_names()
 
-    scaler = StandardScaler()
+    scaler = StandardScaler(with_mean=False)
     X_, y_ = shuffle(X, y, random_state=24)
 
     if model_name == "LogisticRegression":
@@ -182,7 +180,7 @@ def plot_confusion_matrix(
     X: np.ndarray, y: np.ndarray, encoder: LabelEncoder, file: Path
 ) -> None:
     sns.set(font_scale=1.4)
-    scaler = StandardScaler()
+    scaler = StandardScaler(with_mean=False)
     X = scaler.fit_transform(X)
     X_, y_ = shuffle(X, y, random_state=24)
     log_model = LogisticRegression()
