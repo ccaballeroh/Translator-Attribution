@@ -11,19 +11,21 @@ They are returned as a dictionary of {feature : counts, ...} easily serialized t
 json file when stored in lists.
 """
 
+import json
+import re
+import subprocess
 from collections import defaultdict
-from helper import ROOT
 from pathlib import Path
-from spacy.tokens.doc import Doc
+from typing import IO, DefaultDict, Dict, Generator, List, Tuple
+
+import spacy
 from spacy.lang.en import English
 from spacy.matcher import PhraseMatcher
 from spacy.tokens import Span
+from spacy.tokens.doc import Doc
 from spacy.tokens.token import Token
-from typing import Dict, DefaultDict, Generator, List, IO, Tuple
-import json
-import re
-import spacy
-import subprocess
+
+from helper import ROOT
 
 __all__ = [
     "MyDoc",
