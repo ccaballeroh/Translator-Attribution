@@ -1,13 +1,83 @@
 """Util functions"""
 
 from collections import defaultdict
-from helper import ROOT
 from pathlib import Path
+from typing import Dict, List, Tuple
+
+import pandas as pd
+import seaborn as sns
 from pandas import DataFrame
+from sklearn.decomposition import PCA
 from sklearn.feature_extraction import DictVectorizer
+from sklearn.feature_selection import SelectKBest, chi2
 from sklearn.linear_model import LogisticRegression
-from sklearn.preprocessing import LabelEncoder
-from typing import Dict, List
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+
+from helper import ROOT
+
+sns.set()
+
+RESULTS_FOLDER = Path(fr"{ROOT}/results/")
+if not RESULTS_FOLDER.exists():
+    RESULTS_FOLDER.mkdir()
+
+FIGS_FOLDER = RESULTS_FOLDER / "figs"
+if not FIGS_FOLDER.exists():
+    FIGS_FOLDER.mkdir()
+
+PCA_FOLDER = FIGS_FOLDER / "pca"
+if not PCA_FOLDER.exists():
+    PCA_FOLDER.mkdir()
+
+
+def plot_pca(
+    features: List[Tuple[Dict[str, int], str, str]],
+    title: str,
+    feature_selection: bool = False,
+    k: int = 45,
+) -> None:
+    pca = PCA(n_components=2)
+    sns.set_style("whitegrid")
+
+    X_dict, y_str = list(zip(*features))
+
+    dict_vectorizer = DictVectorizer(sparse=False)
+    encoder = LabelEncoder()
+
+    X, y = dict_vectorizer.fit_transform(X_dict), encoder.fit_transform(y_str)
+
+    # Feature selection
+    if feature_selection:
+        chi2_selector = SelectKBest(chi2, k=k)
+        X = chi2_selector.fit_transform(X, y)
+
+    features = StandardScaler(with_mean=True).fit_transform(X)
+    X_pca = pca.fit_transform(features)
+
+    d = {
+        "Principal Component 1": pd.Series(X_pca[:, 0]),
+        "Principal Component 2": pd.Series(X_pca[:, 1]),
+        "Translator": pd.Series(y_str),
+    }
+    data = pd.DataFrame(d)
+
+    plot = sns.scatterplot(
+        x="Principal Component 1",
+        y="Principal Component 2",
+        hue="Translator",
+        data=data,
+        palette="cividis",
+        alpha=0.75,
+    )
+
+    plot.set(title=f"{title}")
+    fig = plot.get_figure()
+    fig.savefig(
+        PCA_FOLDER / f"pca_{'_'.join(title.split())}.png", bbox_inches="tight", dpi=300,
+    )
+    fig.clf()
+
+    return None
 
 
 def return_n_most_important(
