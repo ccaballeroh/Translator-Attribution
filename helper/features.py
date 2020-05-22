@@ -76,7 +76,7 @@ def train_extract_most_relevant(
     n: int = 15,
 ) -> Dict[str, Any]:
 
-    if feature_selection:
+    if feature_selection and X.shape[1] >= k:
         chi2_selector = SelectKBest(chi2, k=k)
         X = chi2_selector.fit_transform(X, y)
         all_names = np.array(dict_vectorizer.get_feature_names())
