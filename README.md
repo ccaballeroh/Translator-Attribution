@@ -1,5 +1,7 @@
 # Translator Attribution
 
+**NOTE:** I had to do several last minute changes and haven't updated the comments and docstrings
+
 ## Introduction
 
 To accurately attribute a piece of text to a certain author (i.e., Authorship Attribution) is a well-established task in computational linguistics. However, to accurately attribute a translated document to its translator (we might call it Translatorship Attribution) is a seemingly understudied task. There are only a handful of articles tackling this problem, and only a subset of them reports successful results.
